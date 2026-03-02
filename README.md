@@ -61,5 +61,4 @@ chmod +x install_linux.sh
 
 ## 📄 Documentation
 - [Detailed API Docs](api_docs.md)
-- [Implementation Walkthrough](walkthrough.md)
 
