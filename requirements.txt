@@ -1,0 +1,19 @@
+# Core Web Framework
+fastapi
+uvicorn
+python-multipart
+
+# AI & Media Processing (Server Optimized)
+nudenet
+opencv-python-headless
+numpy
+pillow
+
+# Backend Utilities
+aiofiles
+slowapi
+
+# Transformer Models (CPU optimized)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+transformers

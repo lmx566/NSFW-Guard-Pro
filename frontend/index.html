@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSFW Guard Pro | Intelligent Image Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #0c0c0e;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        .glass {
+            background: rgba(23, 23, 26, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .glow {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .score-bar {
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-out;
+            border-radius: 4px;
+        }
+
+        .label-pill {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        @keyframes shimmer {
+            100% {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col items-center p-6 pb-20">
+    <!-- Header -->
+    <header class="mt-8 mb-12 text-center">
+        <h1 class="text-5xl font-bold gradient-text mb-4">NSFW Guard Pro</h1>
+        <p class="text-slate-400 max-w-lg mx-auto">
+            Modular local AI for image classification and intelligent censoring.
+        </p>
+    </header>
+
+    <main class="w-full max-w-5xl space-y-8">
+        <!-- Control Panel -->
+        <section class="glass rounded-3xl p-8 flex flex-col lg:flex-row gap-8 items-center justify-between">
+            <div class="flex-1 space-y-6 w-full">
+                <!-- Access Control -->
+                <div class="space-y-4">
+                    <label class="block text-sm font-bold text-slate-400 uppercase tracking-wider">Access
+                        Control</label>
+                    <div class="relative w-full max-w-sm">
+                        <input type="password" id="apiKeyInput"
+                            class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-600"
+                            placeholder="Enter API Key...">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <h3 class="text-xl font-semibold">Censorship Mode</h3>
+                    <div class="flex bg-slate-900/80 p-1 rounded-xl">
+                        <label
+                            class="px-4 py-2 rounded-lg cursor-pointer transition has-[:checked]:bg-blue-600 has-[:checked]:text-white text-slate-400">
+                            <input type="radio" name="mode" value="blur" checked class="hidden">
+                            <span>Blur</span>
+                        </label>
+                        <label
+                            class="px-4 py-2 rounded-lg cursor-pointer transition has-[:checked]:bg-blue-600 has-[:checked]:text-white text-slate-400">
+                            <input type="radio" name="mode" value="pixel" class="hidden">
+                            <span>Pixel</span>
+                        </label>
+                        <label
+                            class="px-4 py-2 rounded-lg cursor-pointer transition has-[:checked]:bg-blue-600 has-[:checked]:text-white text-slate-400">
+                            <input type="radio" name="mode" value="solid" class="hidden">
+                            <span>Solid</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between text-sm">
+                        <label class="text-slate-400 font-medium">Intensity / Color</label>
+                        <span id="intensityVal" class="text-blue-400 font-bold">51</span>
+                    </div>
+                    <div class="flex gap-4 items-center">
+                        <input type="range" id="intensity" min="11" max="151" step="2" value="51"
+                            class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                        <div id="colorPickerContainer" class="hidden flex items-center gap-2">
+                            <input type="color" id="solidColor" value="#000000"
+                                class="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Zone -->
+            <div id="dropzone"
+                class="flex-1 w-full border-2 border-dashed border-slate-700 rounded-2xl p-8 flex flex-col items-center justify-center transition-all hover:border-blue-500 hover:bg-blue-500/5 group cursor-pointer">
+                <input type="file" id="fileInput" class="hidden" accept="image/*" multiple>
+                <div class="bg-blue-600/10 p-4 rounded-full mb-4 group-hover:scale-110 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                </div>
+                <p class="text-slate-200 font-medium">Click to upload or drag & drop</p>
+                <p class="text-xs text-slate-500 mt-2">Batch processing supported (Select multiple)</p>
+            </div>
+        </section>
+
+        <!-- Batch Queue Panel -->
+        <section id="batchPanel" class="hidden glass rounded-3xl p-6 space-y-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg font-bold">Process Queue</h3>
+                <span id="queueCount" class="text-xs bg-slate-800 px-3 py-1 rounded-full text-slate-400">0 Files</span>
+            </div>
+            <div id="queueList" class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+                <!-- Queue items will be injected here -->
+            </div>
+        </section>
+
+        <!-- Preview Results -->
+        <section id="results"
+            class="hidden glass rounded-3xl p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <!-- Result Header & Scores -->
+            <div class="space-y-6 border-b border-slate-800 pb-8">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-2xl font-bold">Analysis Output</h3>
+                        <p id="fileNameDisplay" class="text-sm text-slate-500 italic"></p>
+                    </div>
+                    <div id="status"
+                        class="flex items-center gap-3 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-sm text-blue-400">
+                        <div class="spinner"></div> Model Inference...
+                    </div>
+                </div>
+
+                <!-- Horizontal Scores -->
+                <div class="space-y-3">
+                    <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">AI Confidence Scores
+                    </h4>
+                    <div id="scoresContainer" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <!-- Scores will be injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Images Comparison (Side-by-Side) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Source Image -->
+                <div class="space-y-4">
+                    <div
+                        class="flex justify-between items-center bg-slate-900/50 p-2.5 px-4 rounded-xl border border-white/5">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Original Source</span>
+                    </div>
+                    <div
+                        class="relative aspect-video md:aspect-square rounded-2xl overflow-hidden bg-slate-950 border border-white/5">
+                        <img id="originalImg" src="" class="w-full h-full object-contain">
+                    </div>
+                </div>
+
+                <!-- Processed Image -->
+                <div class="space-y-4">
+                    <div
+                        class="flex justify-between items-center bg-blue-600/10 p-2.5 px-4 rounded-xl border border-blue-500/20">
+                        <span class="text-xs font-bold text-blue-400 uppercase tracking-widest">Sanitized Result</span>
+                        <span id="blurLabel"
+                            class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">WAITING</span>
+                    </div>
+                    <div id="processedWrapper"
+                        class="relative aspect-video md:aspect-square rounded-2xl overflow-hidden bg-slate-950 border border-blue-500/20 glow">
+                        <!-- Skeleton Loader -->
+                        <div id="skeleton" class="absolute inset-0 z-10 bg-slate-900 overflow-hidden hidden">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]">
+                            </div>
+                        </div>
+                        <img id="processedImg" src=""
+                            class="w-full h-full object-contain opacity-0 transition-opacity duration-500">
+                        <div id="blurOverlay"
+                            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity pointer-events-none">
+                            <p
+                                class="text-white font-bold text-sm uppercase tracking-widest bg-red-600/80 px-4 py-1 rounded-full">
+                                Censored Content</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                class="flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-900/30 p-6 rounded-2xl border border-white/5">
+                <div id="summaryInfo" class="text-sm text-slate-300">
+                    <!-- Dynamic Summary -->
+                </div>
+                <div class="flex gap-4 w-full md:w-auto">
+                    <button id="resetBtn"
+                        class="flex-1 md:flex-none px-8 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 transition font-medium">New
+                        Scan</button>
+                    <a id="downloadBtn" href="#" download="sanitized_image.jpg"
+                        class="flex-1 md:flex-none px-8 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 transition font-bold text-center">Export
+                        Image</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-auto pt-12 text-slate-600 text-sm flex flex-col items-center gap-2">
+        <div class="flex gap-6">
+            <span>Powered by Vision-Transformer (ViT)</span>
+            <span>•</span>
+            <span>NudeNet Engine</span>
+        </div>
+        <p>100% Local Inference • Zero External Requests</p>
+    </footer>
+
+    <script src="/js/app.js?v=2.0.1"></script>
+</body>
+
+</html>

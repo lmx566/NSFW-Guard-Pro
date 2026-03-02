@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+nudenet
+opencv-python
+numpy
+pillow
+aiofiles
+slowapi
+transformers
+torch
+# For GPU, usually users just install standard torch which auto-detects CUDA if available, 
+# but for precision on Windows/Linux with CUDA 11.8:
+# --extra-index-url https://download.pytorch.org/whl/cu118
