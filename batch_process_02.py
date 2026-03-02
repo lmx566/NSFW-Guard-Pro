@@ -16,7 +16,7 @@ import time
 from pathlib import Path
 
 # --- Configuration ---
-API_BASE_URL = "http://205.198.80.58:8000"  # 直接连服务器 IP，不经过 Cloudflare
+API_BASE_URL = "http://demo.com:8000"  # 直接连服务器 IP，不经过 Cloudflare
 API_KEY = "NSFW_PRO_8rqNo38SzYgZX86-byPnlZvvXzpiJL5rbE_TYIkbce8"
 TARGET_DIR = "02"
 MODE = "solid"
